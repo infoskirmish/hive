@@ -1,0 +1,18 @@
+#------------------------------------------------
+# Makefile include for AVTECH ARM
+#------------------------------------------------
+ARCH=arm
+TOOLCHAIN=/opt/arm-devel/usr
+BIN=$(TOOLCHAIN)/bin
+HEADERS=$(TOOLCHAIN)/include
+LIBS=$(TOOLCHAIN)/lib
+CC=$(BIN)/gcc
+AR=${BIN}/ar
+RANLIB=${BIN}/ranlib
+STRIP=${BIN}/strip
+
+CFLAGS += -I$(HEADERS)
+CFLAGS += -DLINUX -DAVTECH_ARM -static
+CFLAGS += -DUCLIBC
+
+LDFLAGS += -L$(LIBX) -lpthread -lutil

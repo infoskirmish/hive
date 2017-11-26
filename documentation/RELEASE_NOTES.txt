@@ -1,0 +1,191 @@
+###########################################################################
+  ---	SECRET//NOFORN   ---
+###########################################################################
+
+  **************************
+  *** HIVE RELEASE NOTES ***
+  **************************
+
+###########################################################################
+
+  LATEST Releases:
+
+	Platform		Available	Untested
+	Windows 2000		v2.4		------
+	Windows XP SP0-SP3	v2.4		------
+	Windows Server 2003	v2.4		------
+	Solaris SPARC 10	v2.6		------
+	Solaris SPARC 9		v2.6		------
+	Solaris SPARC 8		v2.6		------
+	Solaris x86 10		v2.6		------
+	Solaris x86 9		v2.6		------
+	Solaris x86 8		------		------
+	MikroTik x86 4.x	v2.6.2		------
+	MikroTik x86 3.x	------		v2.6.2
+	MikroTik MIPS-BE 4.x	v2.6.2		------
+	MikroTik MIPS-BE 3.x	------		v2.6.2
+	MikroTik MIPS-LE 4.x	------		v2.6.2
+	MikroTik MIPS-LE 3.x	------		v2.6.2
+	MikroTik PowerPC 4.x	v2.6.2		------
+	MikroTik PowerPC 3.x	------		v2.6.2
+	Linux x86		v2.6.2		------
+	
+###########################################################################
+v2.6.2 -- 01/13/2014
+Uses polarssl havege code to produce random numbers versus /dev/random or
+/dev/urandom because at reboot, MikroTik devices exhibited similar random
+number sequences. This resolves the issue of the LP seeing what it believes
+to be a TCP replay attack for MikroTik devices by properly seeding the
+random number generator in the implant for all architectures.
+	
+###########################################################################
+v2.6.1 -- 03/15/2013
+* Removes string definitions used to obfuscate debug code that was not
+* needed in Hive releases, but that could be revealing if found.
+ 
+###########################################################################
+v2.6 -- 01/29/2013
+* This release of Hive primarily addresses forensic issues discovered by a
+* forensic analysis performed by IOC/AFD on Hive version 2.5 and documented
+* in their report from October 26, 2012 (AFD-2012-0973-2). Hive 2.6 changes
+* the common trigger encoding along with the encoding scheme for raw TCP and
+* UDP triggers.
+*
+* The SSL server certificates used with the Hive client (command and control)
+* are now read from files rather than being hard-coded into the client. In
+* addition, the Diffie-Hellman paramters used to establish the SSL connections
+* have been changed.
+
+###########################################################################
+V2.5.2 -- 12/06/2012
+* Fixes a bug in the 2.5 code that was also carried into 2.5.1 that may
+* lead to premature self-deletion of the implant.
+
+###########################################################################
+v2.5.1 -- 11/16/2012
+* Modifies all mikrotik, linux, and solaris code so any successful beacon or
+* trigger will also create a /var/.config file if it does not already exists.
+* Note that the trigger listening function will automatically self delete the
+* executable if it discovers that the /var/.config file does not exists.  If a
+* self delete occurs, the normally empty /var/.config will contain a time
+* stamp when the actual self delete occurred using a yymmddHHMMSS format.
+* Previous versions would allow the executable to stay on the box but would
+* stop the process whenever the /var/.config file was removed.  Version 2.4's
+* Caution for Solaris shells still applies. A new hive updating script called 
+* hiveReset_v1_0.py was added which also resets the self-delete timer for all 
+* linux, Mikrotik, and Solaris devices.
+
+###########################################################################
+v2.5 -- 6/20/2012
+* Allows operator to change the self delete timer from the previously hard
+* coded setting of 60 days.  The delay option unit was changed to a long 
+* versus int to enable longer delays before the first beacon. A 
+* hiveUpdater.py script was added to allow remote updates of Hive implants
+* for Linux, Solaris, and Mikrotik routers.  Version 2.4's Caution for 
+* Solaris shells still applies.
+
+###########################################################################
+v2.4 -- 3/05/2012
+* Allows full shell open capability for all boxes.  Solaris boxes are
+* cautioned to close any shells they open at then end.  Otherwise, when a
+* solaris shell is closed, the trigger session is also closed. This code
+* should remove Mikrotik  "spillage" problems in beacons.  Setting the beacons
+* initialDelay with the -d option (i.e. -d 0 ) also stops all beacons. 
+
+###########################################################################
+v2.3.1 -- 01/23/2012
+* Windows implants updated to support Windows 2000. 
+* No change to *nix binaries.
+
+###########################################################################
+v2.3 -- 12/12/2011
+* All implants updated to include support for beacon jitter and compresssed
+	beacons.
+* Beacon code was significantly re-worked as part of the beacon jitter and
+	compression features. The hope is that this also fixes the non-parsable
+	characters that sometimes are sent by MikroTik implants (i.e. "spillage").
+* Secure shell functionality was added to the following supported platforms:
+	- Windows (all)
+	- Linux x86
+	- MikroTik (all)
+	- Solaris SPARC 9-10
+* With this release, secure shell does not work on the following platforms:
+	- Solaris SPARC 8
+	- Solaris x86 8-10
+* To use the secure shell functionality, users must use the updated Hive ILM
+	module that provides this command.  The Hive v1.0 hclient continues to 
+	work with other features, but was not updated to support the new secure 
+	shell functionality.
+
+
+###########################################################################
+v2.2 -- 08/22/2011
+* Updated Windows with the Trigger hanging fixes from 2.1.
+* Windows can now handle multiple triggered connections at once.
+* All platforms will now self-delete themselves after 60 days of no contact
+* Added enhanced beacon functionality to Mikrotik.  Mikrotik can now return ifconfig, netstat -an, netstat -rn, and a ps -ef.
+* Fixed an issue where Mikrotik implants would not beacon after the router had been rebooted.
+
+v2.1 -- 05/23/2011
+* Updated code with reliablity fixes so the trigger no longer hangs due to an implant being improperly shutdown.  These
+	fixes are currently implemented on all platforms except for Windows.
+* Updated the beacon code so that it now returns more survey data.  This data includes ipconfig/ifconfig, netstat -an,
+	netstat -rn, and a process list.  Currently Mikrotik returns empty data due to the actually commands not existing on
+	a host unless busybox is present.
+* Added support for the new beacons and beacon format to honeycomb.  Honeycomb is backwards compatable with beacons back
+	to Hive v1.1.
+
+v2.0 -- 05/9/2011
+* Added support for use of the Hive client through the CutThroat interface.
+
+v1.1 -- 04/14/2011
+* Backport of stability and reliablity fixes we added to Hive 2.0
+* Updated hclient to give slightly better feedback to user when connection
+	goes down
+
+v1.0.2 -- 01/12/2011, 01/21/2011*, 02/14/2011**, 03/07/2011***
+* Due to delays and confusion, the 01/12/2011 version did not have MikroTik PPC and MIPS-BE
+  support.
+* Primarily a release to port Hive to MikroTik RouterOS 3.x and 4.x
+* Fixed beacons to handle DNS failures
+* Fixed beacons to handle connection attempts to closed ports
+* Fixed daemonizing code for MikroTik build. Improper daemonizing was causing triggers to fail.
+* Due to unavailablility of RouterBoard MIPS-LE hardware, testing for MikroTik MIPS-LE 3.x-4.x wasdone on a Linksys WRT54G reflashed with DD-WRT v24-sp2.
+* For MikroTik, Hive binaries were linked against uClibc libraries and are unlikely to work on older firmware such as the 2.x series.
+* Latest official releases and tested versions:
+	- Windows XP SP0-SP3		-- v1.0.1; v1.0.2 untested
+	- Windows 2003				-- v1.0.1; v1.0.2 untested
+	- Solaris SPARC 9-10		-- v1.0.1; v1.0.2 untested
+	- Solaris x86 9-10			-- v1.0.2**
+	- MikroTik x86 3.x-4.x		-- v1.0.2
+	- MikroTik PPC 4.x			-- v1.0.2*
+	- MikroTik PPC 3.x			-- v1.0.2 untested
+	- MikroTik MIPS-BE 4.x		-- v1.0.2*
+	- MikroTik MIPS-BE 3.x		-- v1.0.2 untested
+	- Linux x86					-- v1.0.2**
+	- MikroTik MIPS-LE 4.x		-- v1.0.2***
+	- MikroTik MIPS-LE 3.x		-- v1.0.2***
+
+###########################################################################
+v1.0.1 -- 12/22/2010
+* DR fix for patcher.  v1.0 patcher does not allow hostnames to be patched into binaries.  v1.0.1 allows both IP adresses and hostnames 
+* Re-released patcher, but implants and client are functionally unchanged.
+* Latest official releases and tested versions:
+	- Windows XP SP0-SP3	-- v1.0.1
+	- Windows 2003			-- v1.0.1
+	- Solaris SPARC 9-10	-- v1.0.1
+	- Linux x86				-- v1.0.1 untested
+
+###########################################################################
+v1.0   -- 10/27/2010
+* released Hive client, patcher, and implants for Windows x86 and Solaris SPARC 
+* prototype Linux x86 implant provided in patcher
+* Official releases and versions:
+	- Windows XP SP0-SP3	-- v1.0
+	- Windows 2003			-- v1.0
+	- Solaris SPARC 9-10	-- v1.0
+	- Linux x86				-- v1.0 untested
+
+###########################################################################
+  ---	SECRET//NOFORN   ---
+###########################################################################

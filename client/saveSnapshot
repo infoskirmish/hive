@@ -1,0 +1,49 @@
+#!/bin/bash
+# Saves a copy of the last executables built into a snapshot directory...
+
+timeStamp=`date +"%Y%m%d-%H%M"`
+#echo ${timeStamp}
+
+# Create Snapshot Directory
+rm -rf ../snapshot_${timeStamp}
+mkdir ../snapshot_${timeStamp}
+
+# Change permisions of unpatched executables to 755 and save a copy
+chmod 755 ../server/hived-mikrotik-mips
+chmod 755 ../server/hived-mikrotik-mips-dbg
+chmod 755 ../server/hived-mikrotik-mipsel
+chmod 755 ../server/hived-mikrotik-mipsel-dbg
+chmod 755 ../server/hived-linux-x86
+chmod 755 ../server/hived-linux-x86-dbg
+chmod 755 ../server/hived-mikrotik-ppc
+chmod 755 ../server/hived-mikrotik-ppc-dbg
+chmod 755 ../server/hived-solaris-x86
+chmod 755 ../server/hived-solaris-x86-dbg
+chmod 755 ../server/hived-solaris-sparc
+chmod 755 ../server/hived-solaris-sparc-dbg
+chmod 755 ../server/hived-ubiquiti-mips
+chmod 755 ../server/hived-ubiquiti-mips-dbg
+mkdir ../snapshot_${timeStamp}/server_unpatchedDirectory/
+cp -a ../server/hived* ../snapshot_${timeStamp}/server_unpatchedDirectory/
+
+# Save hive-patcher and client binaries
+mkdir ../snapshot_${timeStamp}/clientDirectory/
+cp -a hive-patcher* ../snapshot_${timeStamp}/clientDirectory/
+cp -a hclient-linux* ../snapshot_${timeStamp}/clientDirectory/
+
+# Save all cutthroat files
+cd ../ilm-client
+mkdir ../snapshot_${timeStamp}/ctDirectory/
+cp -a ./CCS* ../snapshot_${timeStamp}/ctDirectory/
+cp -a ./cutthroat* ../snapshot_${timeStamp}/ctDirectory/
+cp -a ./hive ../snapshot_${timeStamp}/ctDirectory/
+cp -a ./hive.md5 ../snapshot_${timeStamp}/ctDirectory/
+cp -a ./server* ../snapshot_${timeStamp}/ctDirectory/
+cp -a ./ca.crt ../snapshot_${timeStamp}/ctDirectory/
+
+# Save a copy of honeycomb.py and its MD5 hash
+cd ../honeycomb
+cp -a honeycomb.py ../snapshot_${timeStamp}/
+md5sum honeycomb.py > ../snapshot_${timeStamp}/honeycomb.py.md5
+
+cd ../client

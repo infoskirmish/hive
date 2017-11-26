@@ -1,0 +1,127 @@
+10.3.2.141|4567|10.2.5.22|dns-request|-1
+
+
+----------------New Trigger Entry @ 2011-04-05 11:39:53----------------
+ DEBUG: trigger mode set
+ DEBUG: trigger.c requesting pthread_mutex_lock
+ DEBUG: trigger.c pthread_mutex_lock locked
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.3.2.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+ DEBUG: trigger.c pthread_mutex_lock unlocked
+----------------New Trigger Entry @ 2011-04-05 11:41:49----------------
+ DEBUG: trigger mode set
+ DEBUG: trigger.c requesting pthread_mutex_lock
+ DEBUG: trigger.c pthread_mutex_lock locked
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.3.2.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+ DEBUG: trigger.c pthread_mutex_lock unlocked
+----------------New Trigger Entry @ 2011-04-05 11:55:08----------------
+ DEBUG: trigger mode set
+ DEBUG: trigger.c requesting pthread_mutex_lock
+ DEBUG: trigger.c pthread_mutex_lock locked
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.3.2.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+ DEBUG: trigger.c pthread_mutex_lock unlocked
+----------------New Trigger Entry @ 2011-04-05 11:56:19----------------
+ DEBUG: trigger mode set
+ DEBUG: trigger.c requesting pthread_mutex_lock
+ DEBUG: trigger.c pthread_mutex_lock locked
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.3.2.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+ DEBUG: trigger.c pthread_mutex_lock unlocked
+----------------New Trigger Entry @ 2011-04-07 04:32:46----------------
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.3.2.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+----------------New Trigger Entry @ 2011-04-07 04:34:08----------------
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.2.5.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+----------------New Trigger Entry @ 2011-04-07 10:43:15----------------
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.2.5.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+----------------New Trigger Entry @ 2011-04-07 12:33:50----------------
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.2.5.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+----------------New Trigger Entry @ 2011-04-07 12:35:57----------------
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.2.5.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+----------------New Trigger Entry @ 2011-04-18 13:38:49----------------
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.2.5.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+----------------New Trigger Entry @ 2011-04-18 13:46:26----------------
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.2.5.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+
+----------------New Trigger Entry @ 2011-04-18 13:50:56----------------
+
+	Trigger type: 			DNS query packet, (UDP)
+	Target Address: 		10.2.5.22
+	Callback Address: 		10.3.2.141
+	Callback port: 			4567
+
+    [0;34mSending trigger ...[0m[0;34mok.[0m
+

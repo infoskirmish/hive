@@ -1,0 +1,235 @@
+# Defaults
+CXX = g++
+#CXXFLAGS = -Wall -W -Wdeclaration-after-statement
+CXXFLAGS := -Wall -Wextra -ansi -fPIC
+LDFLAGS = -lpthread -lc
+
+ifeq ("$(TARGET)", "linux-x86")
+include ../common/Makefile-include.linux-x86-client
+else ifeq ("$(TARGET)", "linux-x86_64")
+include ../common/Makefile-include.linux-x86_64
+endif
+
+SHELL := $(shell which bash)
+CC := $(shell which gcc)
+GCCVERSION_GT_4.6 = $(shell expr `gcc -dumpversion | cut -f1,2 -d.` \>= 4.6)
+MD5SUM := $(shell which md5sum)
+STRIP := $(shell which strip)
+
+BINARY = hclient-$(TARGET)
+
+#===============================================================================
+CLIENT = ../client
+COMMON = ../common
+CRYPTO = $(COMMON)/crypto
+SSL = $(COMMON)/ssl
+LIBSSL_INCLUDES = $(SSL)/include
+LIBSSL = $(SSL)/library/libpolarssl.a
+LIBCRYPTO = $(CRYPTO)/libcrypto.a
+STRINGS = $(COMMON)/strings
+LIBDEBUG = $(COMMON)/debug/libdebug.a
+#===============================================================================
+
+$(info )
+$(info )
+$(info =========================================================================)
+.PHONY: ARCH_BUILD  $(CLIENT)/ARCH_BUILD $(SSL)/library/ARCH_BUILD $(CRYPTO)/ARCH_BUILD
+include ARCH_BUILD
+include $(CLIENT)/ARCH_BUILD
+include $(SSL)/library/ARCH_BUILD
+include $(CRYPTO)/ARCH_BUILD
+
+ifdef $(ARCH_BUILD_ILMCLIENT)
+  ifneq ("$(ARCH_BUILD_ILMCLIENT)", "$(TARGET)")
+    ILMCLIENT_REBUILD:=force-rebuild
+    $(info .       Rebuilding ILMCLIENT))
+  else
+    ILMCLIENT_REBUILD:=
+    $(info .       ILMCLIENT for $(TARGET) previously built.)
+  endif
+else
+  ILMCLIENT_REBUILD:=force-rebuild
+    $(info .       Building ILMCLIENT)
+endif
+
+ifdef ARCH_BUILD_CRYPTO
+  ifneq ("$(ARCH_BUILD_CRYPTO)", "$(TARGET)")
+    CRYPTO_REBUILD:=force-rebuild
+  else
+    CRYPTO_REBUILD:=
+  endif
+else
+  CRYPTO_REBUILD:=force-rebuild
+endif
+
+ifdef ARCH_BUILD_SSL
+  ifneq ("$(ARCH_BUILD_SSL)", "$(TARGET)")
+    SSL_REBUILD:=force-rebuild
+  else
+    SSL_REBUILD:=
+  endif
+else
+  SSL_REBUILD:=force-rebuild
+endif
+
+ifdef ARCH_BUILD_CLIENTLIB
+  ifneq ("$(ARCH_BUILD_CLIENTLIB)", "$(TARGET)")
+    CLIENTLIB_REBUILD:=force-rebuild
+  else
+    CLIENTLIB_REBUILD:=
+  endif
+else
+  CLIENTLIB_REBUILD:=force-rebuild
+endif
+
+ifdef ARCH_BUILD_DEBUG
+  ifneq ("$(ARCH_BUILD_DEBUG)", "$(TARGET)")
+    DEBUG_REBUILD:=force-rebuild
+  else
+    DEBUG_REBUILD:=
+  endif
+else
+  DEBUG_REBUILD:=force-rebuild
+endif
+
+#===============================================================================
+
+ifeq "$(GCCVERSION_GT_4.6)" "1"
+	CXXFLAGS += -Wno-unused-result
+endif
+
+CRYPTCAT = -DLINUX cryptcat/netcat.c
+
+LIBHCLIENT = $(CLIENT)/libhclient.a
+LIBCRYPTCAT = $(CLIENT)/libcryptcat.a
+HCLIENT = $(CLIENT)/hclient-$(TARGET)
+
+INCLUDES =  -I$(LIBSSL_INCLUDES) -I$(CRYPTO) -I$(CLIENT) -Iinclude -I$(COMMON)/debug
+#INCLUDES += -I. -I$(CRYPTO) -I$(CLIENT) -I$(LIBSSL_INCLUDES) -Iinclude
+INCLUDES += -I$(CLIENT)/cryptcat
+
+CXXFLAGS += $(INCLUDES)
+
+# Library order here necessary to resolve circular dependencies
+LIBS = libILM_SDK.a $(LIBHCLIENT) $(LIBSSL) $(LIBCRYPTO) $(LIBSSL) $(LIBCRYPTO)
+
+OBJS += Command.o
+OBJS += File.o
+OBJS += Ilm.o
+OBJS += Connection.o
+OBJS += Utilities.o
+OBJS += hive.o
+OBJS += $(STRINGS)/string_utils.o
+OUTFILE = hive
+
+# Debug Configuration
+ifdef DEBUG
+  CXXFLAGS += -DDEBUG -D_DEBUG -g -O0
+  LIBS += $(LIBDEBUG)
+  OUTFILE = hive-dbg
+  ifeq ("$(DEBUG)", "2")	
+    CXXFLAGS += -DPOLARSSL_DEBUG_C -DPOLARSSL_DEBUG_MSG
+  endif
+else
+  CXXFLAGS += -Os
+  LIBDEBUG :=
+endif
+
+$(info =========================================================================)
+$(info .   TARGET: $(TARGET))
+$(info .   SRCDIR: $(PWD))
+$(info . CXXFLAGS: $(CXXFLAGS))
+$(info .  LDFLAGS: $(LDFLAGS))
+$(info =========================================================================)
+$(info )
+
+.SILENT:
+.PHONY: all
+
+all:	$(OUTFILE)
+
+hive: $(ILMCLIENT_REBUILD) $(LIBHCLIENT) $(LIBCRYPTO) $(LIBSSL) cryptcat $(OBJS) $(LIBDEBUG)
+	printf "\tLINKING ILM CLIENT...\n"
+	$(CXX) $(CXXFLAGS) -shared $(INCLUDES) $(OBJS) $(LDFLAGS) $(LIBS) -o $(OUTFILE)
+	printf "\tSTRIPPING ILM CLIENT...\n"
+	$(STRIP) $(OUTFILE)
+	${MD5SUM} $(OUTFILE) > $(OUTFILE).md5
+	echo "ARCH_BUILD_ILMCLIENT=$(TARGET)" > ARCH_BUILD
+	printf "\n=========================================================================\n"
+	printf "\tBUILD OF ILM CLIENT COMPLETE\n"
+	printf "=========================================================================\n"
+#	rm -f cryptcat.h
+
+hive-dbg: $(ILMCLIENT_REBUILD) $(LIBHCLIENT) $(LIBCRYPTO) $(LIBSSL) cryptcat $(OBJS) $(LIBDEBUG)
+	printf "\tLINKING ILM CLIENT...\n"
+	$(CXX) $(CXXFLAGS) -shared $(INCLUDES) $(OBJS) $(LDFLAGS) $(LIBS) -o $(OUTFILE)
+	${MD5SUM} $(OUTFILE) > $(OUTFILE).md5
+	echo "ARCH_BUILD_ILMCLIENT=$(TARGET)" > ARCH_BUILD
+	printf "\n=========================================================================\n"
+	printf "\tBUILD OF ILM CLIENT COMPLETE\n"
+	printf "=========================================================================\n"
+#	rm -f cryptcat.h
+
+$(LIBSSL): $(SSL_REBUILD)
+	cd $(SSL)/library && $(MAKE) TARGET=$(TARGET)
+
+
+$(HCLIENT)-$(TARGET):
+	cd $(CLIENT) && $(MAKE) TARGET=$(TARGET)
+	cp $(CLIENT)/HCLIENT) .
+
+$(LIBHCLIENT): $(CLIENTLIB_REBUILD)
+	cd $(CLIENT) && $(MAKE) TARGET=$(TARGET) library
+
+libcryptcat: $(LIBCRYPTCAT)
+
+$(LIBCRYPTCAT):
+	cd $(CLIENT)/ $(MAKE) libcryptcat
+
+$(LIBCRYPTO): $(CRYPTO_REBUILD)
+	cd $(CRYPTO) && $(MAKE) TARGET=$(TARGET)
+
+$(STRINGS)/string_utils.o: $(STRINGS)/string_utils.c $(STRINGS)/string_utils.h
+	cd $(STRINGS) && ${CC} ${CFLAGS} -c string_utils.c string_utils.h
+
+$(LIBDEBUG): $(DEBUG_REBUILD)
+	cd $(COMMON)/debug && $(MAKE) TARGET=$(TARGET)
+
+.PHONY: cryptcat
+cryptcat:
+	printf "\n=========================================================================\n"
+	printf "\tBUILDING $@\n"
+	printf "=========================================================================\n"
+	cd $(CLIENT)/cryptcat && $(MAKE) linux
+	xxd -i $(CLIENT)/cryptcat/cryptcat cryptcat.h
+	printf "\n\n"
+
+.PHONY: test
+test:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c hive.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c GenRandomBytes.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c TxCommand.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c ListenHandler.cpp
+	$(CXX) $(CXXFLAGS) -shared $(INCLUDES) *.o $(LIBS) -o $(OUTFILE)
+
+.PHONY: distclean
+distclean: clean
+	rm -f $(OUTFILE) $(OUTFILE)-dbg
+
+.PHONY: clean
+clean:
+	printf "\n\tCLEANING...\n\n"
+	rm -f *.o $(CLIENT)/cryptcat/cryptcat cryptcat.h
+	rm -f $(LIBHCLIENT)
+	rm -f $(LIBCRYPTCAT)
+	rm -f hclient-linux-dbg
+	rm -f $(OUTFILE).md5
+#	$(MAKE) -C $(CLIENT) clean
+	>ARCH_BUILD
+
+.cpp.o:
+	printf "\tC++\t$<\n"
+	$(CXX) $(CXXFLAGS) -c $<
+
+.PHONY: force-rebuild
+force-rebuild:	;

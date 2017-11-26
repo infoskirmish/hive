@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# Description:
+#     This script launches the honeycomb.py Python script
+#     and provides persistence, automatically restarting
+#     should it terminate unexpectedly.
+#
+
+HDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+LOGFILE=$HDIR/honeycomb.log
+HPATH=$HDIR/honeycomb.py
+
+
+# Only one instance of this script should be running:
+COUNT=`pgrep -x $(basename ${0}) | wc -l`
+if [ "$COUNT" -gt "2" ]
+then
+        echo "Another instance of script: $(basename ${0}) is already running. Exiting now."
+        exit 1
+fi
+
+# Make sure honeycomb.py is not already running:
+COUNT=`pgrep -f $HPATH | wc -l`
+if [ "$COUNT" -gt "0" ]
+then
+	echo "$HPATH is already running. Exiting now."
+	exit 1
+fi
+
+
+# BEGIN
+DATE=`date -d now `
+echo "Starting Honeycomb at ${DATE}" >> ${LOGFILE}
+while [ 1 ]
+do 
+	cd $HDIR
+	python $HPATH &> /dev/null
+
+	# Honeycomb terminated, try restarting after TCP timeout:
+	sleep 75
+	DATE=`date -d now `
+	echo "FAIL. Honeycomb stalled. Restarting at ${DATE}" >> ${LOGFILE}
+done
+

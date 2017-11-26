@@ -1,0 +1,49 @@
+a 10.2.5.99 10.3.2.76 6789 ping-reply # 20
+#a  192.168.1.3 192.168.99.99 3333 ping-reply # # 
+#a 192.168.1.1 192.168.99.99 5678 raw-tcp 1234 1
+#a  192.168.1.3 192.168.99.99 3333 ping-reply # 180
+#a 192.168.1.1 192.168.99.99 5678 raw-udp -324 1           ERROR CHECK
+#a 192.168.1.1 192.168.99.99 5678 raw-udp # 1           ERROR CHECK
+#a 192.168.1.1 192.168.99.99 5678 raw-tcp # 1           ERROR CHECK
+#a 192.168.1.1 192.168.99.99 5678 raw-tcp 1234 1
+#a 192.168.1.1 192.168.99.99 5678 ping-request # 1
+#-------------------------------------------------------
+#Parameters are defined in order from left to right...
+#
+#First parameter is mode
+#      Valid entries:
+#				a,b for all,both (listening and triggering)
+#				l for listening
+#				t for triggering
+#
+#Second Parameter is Target IP Address or hostname
+#		Examples of valid entries:
+#				123.45.67.089
+#
+#Third Parameter is the Callback IP Address or hostname
+#		Examples of valid entries:
+#				123.67..45.089
+#
+#Fourth Parameter is the Callback Port Number
+#		Valid entries:
+#				1-65535
+#
+#Fifth Parameter is the Trigger Protocol
+#		Valid entries:
+#				ping-request
+#				ping-reply
+#				icmp-error
+#				dns-request
+#				raw-tcp
+#				raw-udp
+#
+#Sixth parameter is the trigger port for raw triggers
+#		Valid entries:
+#				1-65535
+#           #  (For all other Trigger Protocols other than raw-tcp and raw-udp
+#
+#Seventh parameter is the Trigger's callback delay
+#		Valid entries:
+#				Number greater than or equal to 0.	
+
+

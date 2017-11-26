@@ -1,0 +1,21 @@
+#------------------------------------------------
+# Makefile include for Linux x86
+#------------------------------------------------
+BUILDROOT=/opt/buildroot/buildroot-2010.11-x86/output/staging/usr
+ARCH=i386
+BUILDTOOLS=$(BUILDROOT)/bin
+UCLIBC_HDRS=$(BUILDROOT)/include
+UCLIBC_LIBS=$(BUILDROOT)/lib
+CC=${BUILDTOOLS}/$(ARCH)-linux-gcc
+AR=${BUILDTOOLS}/$(ARCH)-linux-ar
+RANLIB=${BUILDTOOLS}/$(ARCH)-linux-ranlib
+STRIP=${BUILDTOOLS}/$(ARCH)-linux-sstrip
+
+CFLAGS += -I$(UCLIBC_HDRS)
+CFLAGS += -DLINUX -D_X86 -m32 -static
+CFLAGS += -DUCLIBC
+CFLAGS += -D__BYTE_ORDER=__LITTLE_ENDIAN
+
+LDFLAGS += -lutil -L$(UCLIBC_LIBS) 
+
+STRIPFLAGS :=

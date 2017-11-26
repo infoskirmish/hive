@@ -1,0 +1,7 @@
+#------------------------------------------------
+#Makefile include for Linux x86
+#------------------------------------------------
+CFLAGS += -I../include -D_FILE_OFFSET_BITS=64 -m32
+CFLAGS += -DLINUX -D_X86
+
+LDFLAGS += -lutil

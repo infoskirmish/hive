@@ -1,0 +1,16 @@
+// main.c Strings========================================
+
+// Note that we use a C code style for comments...
+// Recommend that we list the name of the sourcecode file that contains/uses
+// the string like we did above.
+// 
+// The "#define n" portion below is standard.
+//
+//        Name of String     String contents enclosed in double quotes.
+//        |                  |
+//        |                  |
+//        |                  |
+//        V                  V
+// main.c
+#define n system_restore L"SystemRestorePoint"
+#define n system_res_job L"SystemRestorePoint.job"

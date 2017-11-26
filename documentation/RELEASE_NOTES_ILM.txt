@@ -1,0 +1,26 @@
+###########################################################################
+		 			---	SECRET//NOFORN   ---
+###########################################################################
+
+				  ******************************
+				  *** HIVE ILM RELEASE NOTES ***
+				  ******************************
+
+###########################################################################
+v1.2.1 -- 3/5/2012
+* Incorporates 'shell open' to task the implant to reverse-connect to the client and create a secure shell for Solaris boxes.  It also contains a NOTE to remind users to close any shells on solaris boxes at the end.  Closing any shell on a solaris box also closes the trigger connection.
+ 
+v1.2 -- 12/12/2011
+* Adds new command 'shell open' to task the implant to reverse-connect to the client and create a secure shell.
+
+v1.1 -- 10/24/2011
+* Adds new command 'ilm connect' to combine the 'ilm trigger' and 'ilm listen' into a single command and mananged from a single instance/terminal of Cutthroat. Previous v1.0 required two instances of Cutthroat: one to send a Hive trigger, and the second to catch the callback.
+
+v1.0 -- 05/23/2011
+* Initial release of the Hive Cutthroat ILM (Implant Library Module). Includes basic features of the hive-client from Hive v1.X.
+
+
+
+###########################################################################
+		 			---	SECRET//NOFORN   ---
+###########################################################################

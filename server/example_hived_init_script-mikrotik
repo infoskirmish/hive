@@ -1,0 +1,5 @@
+#!/bin/bash
+# rename S99hived
+# place in /etc/rc.d/run.d/ && chmod +x S99hived 
+
+/rw/pckg/hived &

@@ -1,0 +1,194 @@
+#!/bin/bash
+
+# chkconfig: 2345 08 92
+# description:	Starts and stops redirection
+#
+### BEGIN INIT INFO
+# Provides: redirection
+# Required-Start:
+# Required-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: start and stop redirection
+# Description: Start and stop redirection
+### END INIT INFO
+
+VPN_PORT=43653
+CONFIG_DIR=/etc
+
+IPTABLES=$(which iptables)
+if [ "$IPTABLES" == "" ]; then
+	echo -e "\niptables not found\n"
+	exit 1
+fi
+
+PROC_IPTABLES_NAMES=/proc/net/ip_tables_names
+NF_TABLES=$(cat "$PROC_IPTABLES_NAMES" 2>/dev/null)
+	
+validIP()
+{
+	case $1 in
+		"" | *[!0-9.]* | *[!0-9]) return 1 ;;
+	esac
+	local IFS=.
+	set -- $1
+	[ $# -eq 4 ] && [ ${1:-256} -le 255 ] && [ ${2:-256} -le 255 ] && [ ${3:-256} -le 255 ] && [ ${4:-256} -le 255 ]
+}
+
+
+initialize()
+{
+	# Read configuration file
+	if [ -r ${CONFIG_DIR}/redirect.conf ]; then
+		. ${CONFIG_DIR}/redirect.conf
+	else
+		echo "ERROR: Configuration not found in $CONFIG_DIR"
+		return 2
+	fi
+
+	# Parameter Validation
+	if [ ! -d /proc/sys/net/ipv4/conf/$outside_interface ];then
+		echo "Outside interface \"$outside_interface\" not found."
+		return 1
+	fi
+	if [ ! -d /proc/sys/net/ipv4/conf/$inside_interface ];then
+		echo "Inside interface \"$inside_interface\" not found."
+		return 1
+	fi
+	
+	if ! validIP "$PRIVATE_IP"; then
+		echo "$PRIVATE_IP is an invalid IP address."
+		return 1
+	fi
+
+	if ! validIP "$PUBLIC_IP"; then
+		echo "$PUBLIC_IP is an invalid IP address."
+		return 1
+	fi
+	if ! validIP "$TUNNEL_IP"; then
+		echo "$TUNNEL_IP is an invalid IP address."
+		return 1
+	fi
+	
+	# Default policy (DROP)
+	$IPTABLES -P INPUT DROP
+	$IPTABLES -P FORWARD DROP
+	$IPTABLES -P OUTPUT DROP
+	
+	$IPTABLES -F INPUT
+	$IPTABLES -F PREROUTING -t nat
+	$IPTABLES -F POSTROUTING -t nat
+	$IPTABLES -F OUTPUT
+	$IPTABLES -F FORWARD
+
+	$IPTABLES -A INPUT -p tcp --dport $ADMIN_PORT -m state --state NEW -j LOG --log-prefix "Inbound Admin Connection: " --log-level 4
+	$IPTABLES -A INPUT -p tcp --dport $ADMIN_PORT -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+	$IPTABLES -A OUTPUT -p tcp --sport $ADMIN_PORT -m state --state RELATED,ESTABLISHED -j ACCEPT
+}
+
+start() {
+	
+	initialize
+
+	# INPUT
+	if [ "$DEBUG" == "1" ]; then
+		$IPTABLES -A INPUT -i $tunnel_interface -p icmp -j ACCEPT
+	fi
+
+	$IPTABLES -A OUTPUT -p tcp --dport $VPN_PORT -j ACCEPT
+	$IPTABLES -A INPUT -s $PRIVATE_IP -p tcp --sport $VPN_PORT -j ACCEPT
+	
+	# DNAT and FORWARDING
+
+		## DNS NOT YET TESTED
+	if [ $VDNS_SERVER ]; then
+		$IPTABLES -t nat -A PREROUTING -p tcp --sport 1024:65535 -d $PUBLIC_IP --dport 53 -j DNAT --to-destination ${TUNNEL_IP}:$VDNS_PORT
+		$IPTABLES -A FORWARD -o $tunnel_interface -p tcp --sport 1024:65535 -d $TUNNEL_IP --dport 53 -m state --state NEW -j LOG --log-prefix "DNS FORWARD: " --log-level 4
+		$IPTABLES -A FORWARD -o $tunnel_interface -p tcp --sport 1024:65535 -d $TUNNEL_IP --dport 53 -m state --state NEW -j ACCEPT
+		$IPTABLES -t nat -A PREROUTING -i $outside_interface -p tcp --sport 1024:65535 -d $PUBLIC_IP --dport $VDNS_PORT -j DNAT --to-destination $TUNNEL_IP:$VDNS_PORT
+		$IPTABLES -A FORWARD -i $outside_interface -o $tunnel_interface -p tcp --sport 1024:65535 -d $TUNNEL_IP --dport $VDNS_PORT -m state --state NEW -j LOG --log-prefix "DNS FORWARD: " --log-level 4
+		$IPTABLES -A FORWARD -i $outside_interface -o $tunnel_interface -p tcp --sport 1024:65535 -d $TUNNEL_IP --dport $VDNS_PORT -m state --state NEW -j ACCEPT
+	fi
+
+	if [ $VHTTP_PORT ] ; then
+		$IPTABLES -t nat -A PREROUTING -p tcp --sport 1024:65535 -d $PUBLIC_IP --dport 80 -j DNAT --to-destination ${TUNNEL_IP}:$VHTTP_PORT
+
+		$IPTABLES -t nat -A PREROUTING -i $outside_interface -p tcp --sport 1024:65535 -d $PUBLIC_IP --dport $VHTTP_PORT -j DNAT --to-destination $TUNNEL_IP:$VHTTP_PORT
+		$IPTABLES -A FORWARD -i $outside_interface -o $tunnel_interface -p tcp --sport 1024:65535 -d $TUNNEL_IP --dport $VHTTP_PORT -m state --state NEW -j LOG --log-prefix "HTTP FORWARD: " --log-level 4
+		$IPTABLES -A FORWARD -i $outside_interface -o $tunnel_interface -p tcp --sport 1024:65535 -d $TUNNEL_IP --dport $VHTTP_PORT -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+		$IPTABLES -A FORWARD -i $tunnel_interface -o $outside_interface -p tcp --dport 1024:65535 -s $TUNNEL_IP --sport $VHTTP_PORT -m state --state RELATED,ESTABLISHED -j ACCEPT
+	fi
+
+		## HTTPS NOT YET TESTED
+	if [ $VHTTPS_PORT ] ; then
+		$IPTABLES -t nat -A PREROUTING -p tcp --sport 1024:65535 -d $PUBLIC_IP --dport 443 -j DNAT --to-destination ${TUNNEL_IP}:$VHTTPS_PORT
+
+		$IPTABLES -t nat -A PREROUTING -i $outside_interface -p tcp --sport 1024:65535 -d $PUBLIC_IP --dport $VHTTPS_PORT -j DNAT --to-destination $TUNNEL_IP:$VHTTPS_PORT
+		$IPTABLES -A FORWARD -i $outside_interface -o $tunnel_interface -p tcp --sport 1024:65535 -d $TUNNEL_IP --dport $VHTTPS_PORT -m state --state NEW -j LOG --log-prefix "HTTPS FORWARD: " --log-level 4
+		$IPTABLES -A FORWARD -i $outside_interface -o $tunnel_interface -p tcp --sport 1024:65535 -d $TUNNEL_IP --dport $VHTTPS_PORT -m state --state NEW -j ACCEPT
+		$IPTABLES -A FORWARD -i $tunnel_interface -o $outside_interface -p tcp --dport 1024:65535 -s $TUNNEL_IP --sport $VHTTPS_PORT -m state --state RELATED,ESTABLISHED -j ACCEPT
+	fi
+	
+	# SNAT
+	$IPTABLES -t nat -A POSTROUTING -o $tunnel_interface -j MASQUERADE
+	
+	# OUTPUT
+	if [ "$DEBUG" == "1" ]; then
+		$IPTABLES -A OUTPUT -o $tunnel_interface -p icmp -j ACCEPT
+		#$IPTABLES -A OUTPUT -o $inside_interface -p tcp --dport $VPN_PORT -m state --state NEW -j LOG --log-prefix "Tunnel Initiation: " --log-level 4
+		#$IPTABLES -A OUTPUT -o $inside_interface -p tcp --dport $VPN_PORT -m state --state NEW -j ACCEPT
+	fi
+	sysctl -w net.ipv4.ip_forward=1 > /dev/null
+	
+	return 0
+}
+
+stop() {
+	initialize
+	return 0
+}
+
+case "$1" in
+    start)
+	start
+	RETVAL=$?
+	;;
+
+    stop)
+	stop
+	RETVAL=$?
+	;;
+
+    restart|force-reload)
+	stop
+	start
+	RETVAL=$?
+	;;
+
+    reload)
+	# unimplemented
+	RETVAL=	3
+	;;
+
+    status)
+	clear
+	for table in $NF_TABLES; do
+		echo -e "TABLE: $table\n"
+		$IPTABLES -t $table -nvxL --line-number
+		echo -e "\n\n"
+	done
+	;;
+
+    zero)
+	for table in $NF_TABLES; do
+		$IPTABLES -t $table -Z
+	done
+	;;
+
+    *)
+	echo $"Usage: ${IPTABLES} {start|stop|restart|status|zero}"
+	RETVAL=2
+	;;
+esac
+
+exit $RETVAL

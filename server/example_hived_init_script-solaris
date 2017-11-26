@@ -1,0 +1,27 @@
+#!/bin/sh
+# To be placed in /etc/rcS.d/, /etc/rc3.d/ or any or /etc/init.d/ (Solaris 7)
+# Examples: /etc/rcS.d/S99cron 
+
+case "$1" in
+
+'start')
+	if [ -f /usr/local/sbin/hived ]; then
+		# DELETE_ME:    echo "starting HIVED daemon"
+		/usr/local/sbin/hived &
+	fi
+;;
+
+'stop')
+	PID=`/usr/bin/ps -e | /usr/bin/fgrep hived | /usr/bin/awk '{print $1}'`
+	if [ ! -z "$PID" ]; then
+		# DELETE_ME:    echo "stopping HIVED daemon"
+		/usr/bin/kill ${PID} >/dev/null 2>&1
+		fi
+	;;
+
+*)
+	# DELETE_ME:   echo "usage: /etc/init.d/hived {start|stop}"
+	;;
+
+esac
+

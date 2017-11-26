@@ -1,0 +1,22 @@
+#!/bin/bash
+fileToDelete=$0
+
+#let i=0
+#
+#while [ $i -lt 10 ]
+#do
+#	echo Hello $i 1>/dev/null 2>&1
+#	i=$(($i+1))
+#done
+
+#Most logic required to replace and restart hive...
+/rw/pckg/busybox killall hived-mikrotik-mipsbe-PATCHED
+/rw/pckg/busybox sleep 5
+mv newhive hived-mikrotik-mipsbe-PATCHED
+/rw/pckg/busybox sleep 5
+/rw/pckg/hived-mikrotik-mipsbe-PATCHED &
+
+echo "ABCDEFGHIJKLMNOPQRSTUVWXYZ" > /rw/pckg/junk
+
+rm -f $fileToDelete 2>/dev/null
+

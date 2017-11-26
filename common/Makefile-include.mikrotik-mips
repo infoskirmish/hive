@@ -1,0 +1,22 @@
+#------------------------------------------------
+# Makefile include for mikrotik-mips (big-endian)
+#------------------------------------------------
+BUILDROOT=/opt/buildroot/buildroot-2010.11-mipsbe/output/staging/usr
+ARCH=mips
+BUILDTOOLS=$(BUILDROOT)/bin
+UCLIBC_HDRS=$(BUILDROOT)/include
+UCLIBC_LIBS=$(BUILDROOT)/lib
+CC=${BUILDTOOLS}/$(ARCH)-linux-gcc
+AR=${BUILDTOOLS}/$(ARCH)-linux-ar
+RANLIB=${BUILDTOOLS}/$(ARCH)-linux-ranlib
+STRIP=${BUILDTOOLS}/$(ARCH)-linux-sstrip
+
+CFLAGS += -I$(UCLIBC_HDRS) -L$(UCLIBC_LIBS)
+CFLAGS += -DLINUX -DMIKROTIK -D_MIPS -static
+CFLAGS += -D_MIPS_SZPTR=32 -D_BIG_ENDIAN -D__BYTE_ORDER=BIG_ENDIAN
+CFLAGS += -DUCLIBC
+CFLAGS += -D_IPCONFIG -D_NETSTAT_AN -D_NETSTAT_RN -D_PS_EF -D_GNU_SOURCE
+
+LDFLAGS += -lutil
+
+STRIPFLAGS :=

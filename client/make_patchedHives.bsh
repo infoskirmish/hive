@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#clean all existing patched versions
+rm hived-*PATCHED
+rm -rf ./patchedHives
+mkdir ./patchedHives
+
+#Build all patchedHives
+./hive-patcher -a 10.6.5.191 -d 10 -i 60 -k TestingTesting -I eri0 -t 0 
+
+#Remove hived-solaris-x86-PATCHED version since it was built with the wrong interface
+rm hived-solaris-x86-PATCHED
+
+#Store correctly built patched versions
+mv hived-*PATCHED ./patchedHives
+
+#Build hived-solaris-x86-PATCHED with the correct interface
+./hive-patcher -a 10.6.5.191 -d 10 -i 60 -k TestingTesting -I iprb0 -t 0 -m sol-x86 
+
+#Store hived-solaris-x86-PATCHED with the correctly built patched version
+mv hived-*PATCHED ./patchedHives
+
+#List all patched versions
+ls -altr ./patchedHives/*
+

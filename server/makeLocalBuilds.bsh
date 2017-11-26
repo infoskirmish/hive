@@ -1,0 +1,13 @@
+#!/bin/bash
+rm -f ./hived-mikrotik-* ./hived-linux-* 
+make mikrotik-mipsbe
+make mikrotik-mipsle
+make mikrotik-ppc
+make mikrotik-x86
+make linux-x86
+echo
+echo "Newly built files within the last 10 minutes are as follows..."
+find . -name "hived-*" -mmin -10
+echo
+
+

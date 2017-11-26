@@ -1,0 +1,4 @@
+pushd /home/jeremy/sourceforge/hive/trunk/ilm-client/ && gnome-terminal --geometry=75x25 -t "Hive Shell" -e "./cutthroat hive"; popd
+
+## alternatively,
+gnome-terminal -x commands-to-end-of-line
